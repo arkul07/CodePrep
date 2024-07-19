@@ -1,24 +1,83 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
-const Login = () => {
+const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (response.status !== 200) {
+        setError(data.error);
+        return;
+      }
+
+      // Handle successful login, e.g., redirect to home page or store token
+    } catch (err) {
+      setError('Invalid email or password. Please try again.');
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        <form>
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <div className="flex-grow container mx-auto px-6 py-8">
+        <h1 className="text-3xl font-semibold text-gray-700 w-1/2 mx-auto">Login</h1>
+        <form className="bg-white p-6 rounded-lg shadow mt-8 w-1/2 mx-auto" onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="email">Email</label>
-            <input type="email" id="email" className="w-full p-3 border rounded" />
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              required
+            />
           </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2" htmlFor="password">Password</label>
-            <input type="password" id="password" className="w-full p-3 border rounded" />
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              required
+            />
           </div>
-          <button type="submit" className="w-full bg-green-500 text-white p-3 rounded">Login</button>
+          {error && <p className="text-red-500 text-xs italic">{error}</p>}
+          <div className="flex items-center justify-between">
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Login
+            </button>
+          </div>
         </form>
       </div>
+      <Footer />
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;
